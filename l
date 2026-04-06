@@ -1,5 +1,5 @@
--- NEVERLOSE UI - ПРАВИЛЬНАЯ ВЕРСИЯ
--- 2 колонки контента (Left/Right), компактные элементы
+-- NEVERLOSE UI - ФИНАЛЬНАЯ ВЕРСИЯ (ОДНА КОЛОНКА)
+-- Простая структура: слева табы, справа контент вниз
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -211,52 +211,27 @@ function UI:CreateWindow(config)
         TabBtn.AutoButtonColor = false
         Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 4)
         
-        -- Tab content (2 columns)
-        local TabContent = Instance.new("Frame")
+        -- Tab content (ОДНА колонка)
+        local TabContent = Instance.new("ScrollingFrame")
         TabContent.Name = name .. "Content"
         TabContent.Parent = ContentArea
+        TabContent.Active = true
         TabContent.BackgroundTransparency = 1
-        TabContent.Size = UDim2.new(1, 0, 1, 0)
+        TabContent.BorderSizePixel = 0
+        TabContent.Position = UDim2.new(0, 15, 0, 15)
+        TabContent.Size = UDim2.new(1, -30, 1, -30)
+        TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+        TabContent.ScrollBarThickness = 3
+        TabContent.ScrollBarImageColor3 = UI.Themes.Accent
         TabContent.Visible = false
         
-        -- Left column
-        local Left = Instance.new("ScrollingFrame")
-        Left.Name = "Left"
-        Left.Parent = TabContent
-        Left.Active = true
-        Left.BackgroundTransparency = 1
-        Left.BorderSizePixel = 0
-        Left.Position = UDim2.new(0, 10, 0, 10)
-        Left.Size = UDim2.new(0.5, -15, 1, -20)
-        Left.CanvasSize = UDim2.new(0, 0, 0, 0)
-        Left.ScrollBarThickness = 3
-        Left.ScrollBarImageColor3 = UI.Themes.Accent
+        local ContentList = Instance.new("UIListLayout")
+        ContentList.Parent = TabContent
+        ContentList.Padding = UDim.new(0, 8)
+        ContentList.HorizontalAlignment = Enum.HorizontalAlignment.Left
         
-        local LeftList = Instance.new("UIListLayout")
-        LeftList.Parent = Left
-        LeftList.Padding = UDim.new(0, 8)
-        LeftList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            Left.CanvasSize = UDim2.new(0, 0, 0, LeftList.AbsoluteContentSize.Y + 10)
-        end)
-        
-        -- Right column
-        local Right = Instance.new("ScrollingFrame")
-        Right.Name = "Right"
-        Right.Parent = TabContent
-        Right.Active = true
-        Right.BackgroundTransparency = 1
-        Right.BorderSizePixel = 0
-        Right.Position = UDim2.new(0.5, 5, 0, 10)
-        Right.Size = UDim2.new(0.5, -15, 1, -20)
-        Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-        Right.ScrollBarThickness = 3
-        Right.ScrollBarImageColor3 = UI.Themes.Accent
-        
-        local RightList = Instance.new("UIListLayout")
-        RightList.Parent = Right
-        RightList.Padding = UDim.new(0, 8)
-        RightList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            Right.CanvasSize = UDim2.new(0, 0, 0, RightList.AbsoluteContentSize.Y + 10)
+        ContentList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            TabContent.CanvasSize = UDim2.new(0, 0, 0, ContentList.AbsoluteContentSize.Y + 20)
         end)
         
         -- Tab click
@@ -278,19 +253,12 @@ function UI:CreateWindow(config)
         
         Tab.Button = TabBtn
         Tab.Content = TabContent
-        Tab.Left = Left
-        Tab.Right = Right
-        
-        -- Helper to get parent
-        local function GetParent(side)
-            return side == "left" and Left or Right
-        end
         
         -- UI Elements
         function Tab:CreateSection(name)
             local Section = Instance.new("TextLabel")
             Section.Name = name
-            Section.Parent = Left  -- Добавляем в Left по умолчанию
+            Section.Parent = TabContent
             Section.BackgroundTransparency = 1
             Section.Size = UDim2.new(1, 0, 0, 30)
             Section.Font = Enum.Font.GothamBold
@@ -310,11 +278,9 @@ function UI:CreateWindow(config)
         end
         
         function Tab:CreateToggle(config)
-            local parent = GetParent(config.Parent or "left")
-            
             local Toggle = Instance.new("Frame")
             Toggle.Name = config.Name
-            Toggle.Parent = parent
+            Toggle.Parent = TabContent
             Toggle.BackgroundTransparency = 1
             Toggle.Size = UDim2.new(1, 0, 0, 24)
             
@@ -329,7 +295,7 @@ function UI:CreateWindow(config)
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.TextTransparency = 0.3
             
-            -- Простой чекбокс (не круглый)
+            -- Простой чекбокс
             local Box = Instance.new("Frame")
             Box.Parent = Toggle
             Box.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
@@ -390,11 +356,9 @@ function UI:CreateWindow(config)
         end
         
         function Tab:CreateSlider(config)
-            local parent = GetParent(config.Parent or "left")
-            
             local Slider = Instance.new("Frame")
             Slider.Name = config.Name
-            Slider.Parent = parent
+            Slider.Parent = TabContent
             Slider.BackgroundTransparency = 1
             Slider.Size = UDim2.new(1, 0, 0, 50)
             
@@ -490,11 +454,9 @@ function UI:CreateWindow(config)
         end
         
         function Tab:CreateDropdown(config)
-            local parent = GetParent(config.Parent or "left")
-            
             local Drop = Instance.new("Frame")
             Drop.Name = config.Name
-            Drop.Parent = parent
+            Drop.Parent = TabContent
             Drop.BackgroundTransparency = 1
             Drop.Size = UDim2.new(1, 0, 0, 40)
             
@@ -609,11 +571,9 @@ function UI:CreateWindow(config)
         end
         
         function Tab:CreateButton(config)
-            local parent = GetParent(config.Parent or "left")
-            
             local Btn = Instance.new("TextButton")
             Btn.Name = config.Name
-            Btn.Parent = parent
+            Btn.Parent = TabContent
             Btn.BackgroundColor3 = UI.Themes.Accent
             Btn.BorderSizePixel = 0
             Btn.Size = UDim2.new(1, 0, 0, 36)
@@ -640,7 +600,7 @@ function UI:CreateWindow(config)
         function Tab:CreateLabel(text)
             local Label = Instance.new("TextLabel")
             Label.Name = "Label"
-            Label.Parent = Left
+            Label.Parent = TabContent
             Label.BackgroundTransparency = 1
             Label.Size = UDim2.new(1, 0, 0, 20)
             Label.Font = Enum.Font.ArialBold
@@ -654,11 +614,9 @@ function UI:CreateWindow(config)
         end
         
         function Tab:CreateKeybind(config)
-            local parent = GetParent(config.Parent or "left")
-            
             local Key = Instance.new("Frame")
             Key.Name = config.Name
-            Key.Parent = parent
+            Key.Parent = TabContent
             Key.BackgroundTransparency = 1
             Key.Size = UDim2.new(1, 0, 0, 32)
             
@@ -710,11 +668,9 @@ function UI:CreateWindow(config)
         end
         
         function Tab:CreateParagraph(config)
-            local parent = GetParent(config.Parent or "left")
-            
             local Para = Instance.new("Frame")
             Para.Name = config.Title
-            Para.Parent = parent
+            Para.Parent = TabContent
             Para.BackgroundTransparency = 1
             Para.Size = UDim2.new(1, 0, 0, 60)
             
@@ -743,11 +699,9 @@ function UI:CreateWindow(config)
         end
         
         function Tab:CreateInput(config)
-            local parent = GetParent(config.Parent or "left")
-            
             local Input = Instance.new("Frame")
             Input.Name = config.Name
-            Input.Parent = parent
+            Input.Parent = TabContent
             Input.BackgroundTransparency = 1
             Input.Size = UDim2.new(1, 0, 0, 50)
             
@@ -799,11 +753,9 @@ function UI:CreateWindow(config)
         end
         
         function Tab:CreateColorPicker(config)
-            local parent = GetParent(config.Parent or "left")
-            
             local Picker = Instance.new("Frame")
             Picker.Name = config.Name
-            Picker.Parent = parent
+            Picker.Parent = TabContent
             Picker.BackgroundTransparency = 1
             Picker.Size = UDim2.new(1, 0, 0, 28)
             
